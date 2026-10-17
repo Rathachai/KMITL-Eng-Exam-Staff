@@ -31,7 +31,7 @@ py gen-exam-room.py report-only
 py gen-exam-room.py report-only 2026-10-17_14-26
 ```
 
-ติดตั้งไลบรารีครั้งแรก: `pip install pandas numpy openpyxl` (Windows: `py -m pip install ...`)
+ไลบรารีที่ต้องใช้อยู่ใน `requirements.txt` — `gen-exam-room.py` จะรัน `pip install -r requirements.txt` ให้เองถ้ายังไม่ได้ติดตั้ง หรือรันเองก่อน: `pip install -r requirements.txt` (Windows: `py -m pip install -r requirements.txt`)
 
 > การจัดตารางมีการสุ่ม รันใหม่ทุกครั้งได้ผลไม่เหมือนเดิม
 > ถ้าแก้แค่หน้าตา/ค่าใน config ของรายงาน ให้ใช้ `report-only` เพื่อคงตารางเดิมไว้
