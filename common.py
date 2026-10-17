@@ -13,7 +13,20 @@ from config import *   # noqa: F401,F403  (DATA_DIR, OUT_DIR, EXTYPE, ...)
 
 pd.set_option('display.max_columns', None)
 
-extype = EXTYPE        # ชื่อเดิมที่โค้ดใช้
+
+
+def detect_extype(ex_dates) -> str:
+    """'mid' / 'final' from EXAM_MONTHS using the month of the exam dates
+    (majority month wins). EXTYPE in config overrides."""
+    if EXTYPE:
+        return EXTYPE
+    months = pd.Series([pd.Timestamp(d).month for d in pd.Series(ex_dates).dropna()])
+    if months.empty:
+        raise ValueError("no exam dates to detect exam type")
+    for t, ms in EXAM_MONTHS.items():
+        if months.mode().iloc[0] in ms:
+            return t
+    raise ValueError(f"exam month {months.mode().iloc[0]} not in EXAM_MONTHS in config.py")
 
 
 # ── Run folder + state handoff: exam-code.py -> gen-report-*.py ───────────────

@@ -62,6 +62,9 @@ for fname in fnames:
     df_.append(_df)
 
 dfx = pd.concat(df_)
+
+extype = detect_extype(dfx['ex_date'])   # 'mid' / 'final' จากเดือนสอบ (config.EXAM_MONTHS)
+print('exam type:', extype)
 #dfx.columns = ['order', 'subj', 'sec', 'st_year', 'st_max', 'ex_dur', 'teacher_str', 'building', 'room', 'note', 'ex_date']
 '''
 dfx.columns = ['eid', 'ex_date_th', 'ex_dur_str', 'order', 'subj', 'sec', 'st_year', 'st_max',

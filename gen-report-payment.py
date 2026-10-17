@@ -6,6 +6,7 @@ import openpyxl
 from common import *   # pd, np, re, os, datetime, config values, helpers
 
 _state = load_state()
+extype = _state["extype"]
 dfX, dfST = _state["dfX"], _state["dfST"]
 
 # ─────────────────────────────── EXPORT SIGN SHEET (รับ-ส่งข้อสอบ) ──────────

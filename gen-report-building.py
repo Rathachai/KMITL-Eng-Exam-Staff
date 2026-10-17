@@ -6,6 +6,7 @@ import openpyxl
 from common import *   # pd, np, re, os, datetime, config values, helpers
 
 _state = load_state()
+extype = _state["extype"]
 dfX = _state["dfX"]
 
 ############################################################
