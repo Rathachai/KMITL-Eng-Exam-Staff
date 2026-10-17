@@ -16,7 +16,26 @@ pd.set_option('display.max_columns', None)
 
 ######## CONFIG #############################
 
-PATH_DIR = "/Users/rathachai/Library/CloudStorage/GoogleDrive-rathachai.ch@kmitl.ac.th/My Drive/RC-KMITL/Research/2026 Exam Staff"
+#PATH_DIR = "/Users/rathachai/Library/CloudStorage/GoogleDrive-rathachai.ch@kmitl.ac.th/My Drive/RC-KMITL/Research/2026 Exam Staff"
+_BASE = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(_BASE, "exam-data")   # input: master table + exam schedule xlsx
+OUT_DIR  = os.path.join(_BASE, "reports")     # output: results/
+
+THAI_MONTHS_SHORT = {
+    1: 'ม.ค.', 2: 'ก.พ.', 3: 'มี.ค.', 4: 'เม.ย.',
+    5: 'พ.ค.', 6: 'มิ.ย.', 7: 'ก.ค.', 8: 'ส.ค.',
+    9: 'ก.ย.', 10: 'ต.ค.', 11: 'พ.ย.', 12: 'ธ.ค.',
+}
+
+def exam_semester(ex_date) -> str:
+    d = pd.Timestamp(ex_date)
+    if 7 <= d.month <= 11:
+        return f"1/{d.year + 543}"
+    else:
+        return f"2/{(d.year - 1) + 543}"
+
+def exam_type_th(extype: str) -> str:
+    return 'ปลายภาค' if extype == 'final' else 'กลางภาค'
 
 extype = 'final'
 #extype = 'mid'
@@ -217,7 +236,7 @@ def clean_name_list(name_list):
 
 ######### READ MASTER #############################
 
-dfst = pd.read_excel(open(PATH_DIR + "/Exam-Master-Table.xlsx", "rb"), sheet_name="exam_staff")
+dfst = pd.read_excel(open(DATA_DIR + "/Exam-Master-Table.xlsx", "rb"), sheet_name="exam_staff")
 dfst['todo'] = dfst['todo'].map({'yes': True, 'no': False})
 dfst['first'].fillna('',inplace=True)
 dfst['last'].fillna('',inplace=True)
@@ -233,12 +252,12 @@ sp_roles = ['เจ้าหน้าที่', 'หัวหน้างาน
 dfst.loc[dfst['role'].isin(aj_roles), 'main_role'] = 'teacher'
 dfst.loc[dfst['role'].isin(sp_roles), 'main_role'] = 'support'
 
-dfdp = pd.read_excel(open(PATH_DIR + "/Exam-Master-Table.xlsx", "rb"), sheet_name="department", dtype={'code4': str, 0: str})
+dfdp = pd.read_excel(open(DATA_DIR + "/Exam-Master-Table.xlsx", "rb"), sheet_name="department", dtype={'code4': str, 0: str})
 
-dfoff = pd.read_excel(open(PATH_DIR + "/Exam-Master-Table.xlsx", "rb"), sheet_name="staff_cannot")
+dfoff = pd.read_excel(open(DATA_DIR + "/Exam-Master-Table.xlsx", "rb"), sheet_name="staff_cannot")
 stoff = (dfoff['fullname'] + ' ' + dfoff['cannot']).tolist()
 
-dfslot = pd.read_excel(open(PATH_DIR + "/Exam-Master-Table.xlsx", "rb"), sheet_name="staff_slot")
+dfslot = pd.read_excel(open(DATA_DIR + "/Exam-Master-Table.xlsx", "rb"), sheet_name="staff_slot")
 dfslot['self_subj'] = dfslot['self_subj'].map({'yes': True, 'no': False})
 dfslot.set_index('role', inplace=True)
 
@@ -246,14 +265,14 @@ dfslot.set_index('role', inplace=True)
 ######### READ EXAM TIME #############################
 
 '''
-file_name = PATH_DIR + '/ex-days/17 บ่าย.xls'
+file_name = DATA_DIR + '/17 บ่าย.xls'
 df_final = process_exam_report(file_name)
 df_final.columns = ['order', 'subj', 'sec', 'st_year', 'st_num', 'ex_time', 'teachers', 'building', 'room', 'note', 'ex_date']
 
 df_final['code4'] = df_final['subj'].str[:5]
 '''
 
-fnames = glob.glob(PATH_DIR + '/ex-days/ร*.xlsx')
+fnames = glob.glob(DATA_DIR + '/ร*.xlsx')
 
 df_ = []
 
@@ -921,7 +940,7 @@ dfEXST = dfX[['staff_index', 'subj', 'sec', 'ex_date', 'ex_dur', 'room']].sort_v
 dfEXST['st_dept'] =  dfEXST['staff_index'].apply(lambda x: dfST.loc[x,'main_dept'] if x in dfST.index else 'none')  
 
 
-#dfEXST.to_csv(PATH_DIR+'/results/for-checking.csv', index=False, encoding='utf-8-sig')
+#dfEXST.to_csv(OUT_DIR+'/results/for-checking.csv', index=False, encoding='utf-8-sig')
         
 '''
 dfST[dfST['load']>dfST['free']]
@@ -950,7 +969,7 @@ dfX[dfX['staff']==''].groupby('dept')['order'].count()
 # SAVE REPORT
 ########################################################################
 
-def save_df(df, name: str = 'dfX', directory: str = PATH_DIR) -> str:
+def save_df(df, name: str = 'dfX', directory: str = OUT_DIR) -> str:
     """Pickle df to '{directory}/{name}-yyyy-mm-dd hh-MM-ss.save'; return the path."""
     ts   = datetime.now().strftime('%Y-%m-%d %H-%M-%S')
     path = os.path.join(directory, f'{name}-{ts}.save')
@@ -960,7 +979,7 @@ def save_df(df, name: str = 'dfX', directory: str = PATH_DIR) -> str:
     return path
 
 
-def load_latest_df(name: str = 'dfX', directory: str = PATH_DIR):
+def load_latest_df(name: str = 'dfX', directory: str = OUT_DIR):
     """Load the most recent '{name}-*.save' from directory."""
     files = sorted(glob.glob(os.path.join(directory, f'{name}-*.save')))
     if not files:
@@ -972,9 +991,9 @@ def load_latest_df(name: str = 'dfX', directory: str = PATH_DIR):
 
 
 # ── Usage ─────────────────────────────────────────────────────────────────────
-save_df(dfX, PATH_DIR + '/results/bkp')
+save_df(dfX, OUT_DIR + '/results/bkp')
 
-#dfX = load_latest_df(PATH_DIR + '/results/bkp')
+#dfX = load_latest_df(OUT_DIR + '/results/bkp')
         
         
 ########################################################################
@@ -1175,7 +1194,7 @@ for dt in sorted(dtlist):                          # เรียงตามว
     ws = wb_subj.create_sheet(title=slot_sheet_name(dt))
     make_slot_sheet(ws, df_slot, dt)
 
-out_path = PATH_DIR + '/results/by-subjects.xlsx'
+out_path = OUT_DIR + '/results/by-subjects.xlsx'
 wb_subj.save(out_path)
 print(f"Saved: {out_path}")
 
@@ -1329,7 +1348,7 @@ for building in all_buildings:
         ws = wb_room.create_sheet(title=sheet_name)
         make_room_sheet(ws, df_b, dt, building)
 
-out_room = PATH_DIR + '/results/by-room.xlsx'
+out_room = OUT_DIR + '/results/by-room.xlsx'
 wb_room.save(out_room)
 print(f"Saved: {out_room}")        
 
@@ -1543,7 +1562,7 @@ if not wb_staff.sheetnames:
     ws = wb_staff.create_sheet("ไม่มีข้อมูล")
     ws['A1'] = "ไม่พบข้อมูลผู้คุมสอบ (ตรวจสอบ st_group_dept)"
 
-out_staff = PATH_DIR + '/results/by-staffs.xlsx'
+out_staff = OUT_DIR + '/results/by-staffs.xlsx'
 wb_staff.save(out_staff)
 print(f"Saved: {out_staff}")
 
@@ -1742,7 +1761,7 @@ if not wb_bldg.sheetnames:
     ws = wb_bldg.create_sheet("ไม่มีข้อมูล")
     ws['A1'] = "ไม่พบข้อมูลการสอบ"
 
-out_bldg = PATH_DIR + '/results/by-building-time.xlsx'
+out_bldg = OUT_DIR + '/results/by-building-time.xlsx'
 wb_bldg.save(out_bldg)
 print(f"Saved: {out_bldg}")
 
@@ -1760,7 +1779,7 @@ dfZ = dfX[dfx_cols].copy()
 dfZ['staff_role'] = dfZ['staff_index'].apply(lambda x: dfST.loc[x, 'role'] if x in dfST.index else '')
 dfZ['staff_dept'] = dfZ['staff_index'].apply(lambda x: dfST.loc[x, 'dept'] if x in dfST.index else '')
 
-#dfZ.to_excel(PATH_DIR + '/results/for-cheking.xlsx', index=False)
+#dfZ.to_excel(OUT_DIR + '/results/for-cheking.xlsx', index=False)
 
 
 # วันซ้ำ
@@ -1794,7 +1813,7 @@ g5.sort_values('num_ex', inplace=True)
 
 # save
 
-with pd.ExcelWriter(PATH_DIR + '/results/for-cheking.xlsx') as w:
+with pd.ExcelWriter(OUT_DIR + '/results/for-cheking.xlsx') as w:
     dfZ.to_excel(w, sheet_name="DATA", index=False)
     g1.to_excel(w, sheet_name="by_staff")
     g2.to_excel(w, sheet_name="by_room_exdur_role")
@@ -2063,7 +2082,7 @@ if not wb_pay.sheetnames:
     ws = wb_pay.create_sheet("ไม่มีข้อมูล")
     ws['A1'] = "ไม่พบข้อมูลผู้คุมสอบ"
 
-out_pay = PATH_DIR + '/results/for-payment.xlsx'
+out_pay = OUT_DIR + '/results/for-payment.xlsx'
 wb_pay.save(out_pay)
 print(f"Saved: {out_pay}  sheets={len(wb_pay.sheetnames)}")
 
