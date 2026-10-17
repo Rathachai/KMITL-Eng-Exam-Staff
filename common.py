@@ -16,34 +16,64 @@ pd.set_option('display.max_columns', None)
 extype = EXTYPE        # ชื่อเดิมที่โค้ดใช้
 
 
-# ── State handoff: exam-code.py -> gen-report-*.py ────────────────────────────
+# ── Run folder + state handoff: exam-code.py -> gen-report-*.py ───────────────
+# แต่ละรอบของ exam-code.py สร้างโฟลเดอร์ OUT_DIR/yyyy-mm-dd_HH-MM/
+# gen-report-*.py ใช้โฟลเดอร์ล่าสุดโดยอัตโนมัติ หรือระบุเอง:
+#     python3 gen-report-room.py 2026-10-17_14-30
 
-STATE_PATH = os.path.join(OUT_DIR, STATE_FILE)
+import sys
+
+RUN_DIR = None
+
+
+def new_run_dir() -> str:
+    """Create OUT_DIR/yyyy-mm-dd_HH-MM and make it the current run folder."""
+    global RUN_DIR
+    RUN_DIR = os.path.join(OUT_DIR, datetime.now().strftime('%Y-%m-%d_%H-%M'))
+    os.makedirs(RUN_DIR, exist_ok=True)
+    return RUN_DIR
+
+
+def find_run_dir(name: str = None) -> str:
+    """Folder given by name, else the newest run folder that has STATE_FILE."""
+    if name:
+        d = os.path.join(OUT_DIR, name)
+        if not os.path.exists(os.path.join(d, STATE_FILE)):
+            raise FileNotFoundError(f"{d}/{STATE_FILE} not found")
+        return d
+    runs = sorted(d for d in os.listdir(OUT_DIR)
+                  if os.path.exists(os.path.join(OUT_DIR, d, STATE_FILE))) \
+        if os.path.isdir(OUT_DIR) else []
+    if not runs:
+        raise FileNotFoundError(f"No run folder in {OUT_DIR} — run exam-code.py first")
+    return os.path.join(OUT_DIR, runs[-1])
 
 
 def save_state(**objs) -> str:
-    """Pickle the given objects (e.g. dfX, dfST, dfslot, dtlist) to STATE_PATH."""
-    os.makedirs(OUT_DIR, exist_ok=True)
-    with open(STATE_PATH, 'wb') as f:
+    """Pickle the given objects (dfX, dfST, ...) into a NEW run folder."""
+    path = os.path.join(new_run_dir(), STATE_FILE)
+    with open(path, 'wb') as f:
         pickle.dump(objs, f, protocol=pickle.HIGHEST_PROTOCOL)
-    print(f"Saved state: {STATE_PATH}  keys={list(objs)}")
-    return STATE_PATH
+    print(f"Saved state: {path}  keys={list(objs)}")
+    return path
 
 
-def load_state() -> dict:
-    """Load the dict written by save_state()."""
-    if not os.path.exists(STATE_PATH):
-        raise FileNotFoundError(f"{STATE_PATH} not found — run exam-code.py first")
-    with open(STATE_PATH, 'rb') as f:
+def load_state(run_name: str = None) -> dict:
+    """Load state from run folder (argv[1], else newest) and make it current."""
+    global RUN_DIR
+    RUN_DIR = find_run_dir(run_name or (sys.argv[1] if len(sys.argv) > 1 else None))
+    path = os.path.join(RUN_DIR, STATE_FILE)
+    with open(path, 'rb') as f:
         state = pickle.load(f)
-    print(f"Loaded state: {STATE_PATH}  keys={list(state)}")
+    print(f"Loaded state: {path}  keys={list(state)}")
     return state
 
 
 def out_path(filename: str) -> str:
-    """Path of a report file inside OUT_DIR (flat, no sub folders)."""
-    os.makedirs(OUT_DIR, exist_ok=True)
-    return os.path.join(OUT_DIR, filename)
+    """Path of a report file inside the current run folder."""
+    if RUN_DIR is None:
+        raise RuntimeError("call save_state()/load_state() before out_path()")
+    return os.path.join(RUN_DIR, filename)
 
 
 # ── Thai date / session constants ─────────────────────────────────────────────

@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ── โฟลเดอร์ ────────────────────────────────────────────────────────────────
 DATA_DIR = os.path.join(BASE_DIR, "exam-data")   # input: master table + ตารางสอบ
-OUT_DIR  = os.path.join(BASE_DIR, "reports")     # output: รายงานทั้งหมด (ชั้นเดียว)
+OUT_DIR  = os.path.join(BASE_DIR, "reports")     # output: reports/yyyy-mm-dd_HH-MM/ (หนึ่งโฟลเดอร์ต่อการรัน exam-code.py)
 
 # ── ไฟล์นำเข้า ───────────────────────────────────────────────────────────────
 MASTER_FILE      = "Exam-Master-Table.xlsx"   # ใน DATA_DIR
@@ -27,7 +27,7 @@ EXAM_FILE_GLOB   = "ร*.xlsx"                  # ไฟล์ตารางส
 EXTYPE = 'final'      # 'final' = ปลายภาค, 'mid' = กลางภาค
 
 # ── ไฟล์ state ที่ exam-code.py ส่งต่อให้ gen-report-*.py ──────────────────────
-STATE_FILE = "exam-state.pkl"                 # ใน OUT_DIR
+STATE_FILE = "exam-state.pkl"                 # ในโฟลเดอร์ของรอบนั้น
 
 # ── หลักฐานการจ่ายเงิน (gen-report-payment.py) ────────────────────────────────
 PAY_ORDER_TEXT = "ตามคำสั่งคณะวิศวกรรมศาสตร์ ที่ 414/2569  ลว. 24 กรกฎาคม 2569"
