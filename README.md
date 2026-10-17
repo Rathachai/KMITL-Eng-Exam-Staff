@@ -1,6 +1,25 @@
 # KMITL-Eng-Exam-Staff
 สำหรับจัดตารางคุมสอบ
 
+## ติดตั้ง
+
+ดาวน์โหลดโค้ดมาไว้ในเครื่อง (เลือกอย่างใดอย่างหนึ่ง)
+
+**แบบ clone** (ต้องมี git)
+
+```bash
+git clone https://github.com/Rathachai/KMITL-Eng-Exam-Staff.git
+cd KMITL-Eng-Exam-Staff
+```
+
+**แบบ download zip** (ไม่ต้องมี git)
+
+1. เปิด <https://github.com/Rathachai/KMITL-Eng-Exam-Staff>
+2. กดปุ่ม **Code** → **Download ZIP**
+3. แตก zip ไว้ในโฟลเดอร์ที่ต้องการ แล้วเปิด terminal / Command Prompt ในโฟลเดอร์นั้น
+
+ต้องมี Python 3 ติดตั้งในเครื่อง ไลบรารีที่ใช้ (`requirements.txt`) จะถูกติดตั้งให้เองตอนรันครั้งแรก หรือรันเองก่อน: `pip install -r requirements.txt`
+
 ## โครงสร้าง
 
 | ไฟล์ | หน้าที่ |
