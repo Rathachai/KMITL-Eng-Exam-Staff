@@ -17,7 +17,10 @@ from common import *   # pd, np, re, os, datetime, config values, helpers
 
 ######### READ MASTER #############################
 
-dfst = pd.read_excel(open(os.path.join(DATA_DIR, MASTER_FILE), "rb"), sheet_name="exam_staff")
+# ไฟล์นำเข้า: ใช้ค่าจาก environment (web app อัปโหลดมา) ถ้าไม่มีใช้ค่าเริ่มต้นใน exam-data/
+MASTER_PATH = os.environ.get('EXAM_MASTER_PATH') or os.path.join(DATA_DIR, MASTER_FILE)
+
+dfst = pd.read_excel(open(MASTER_PATH, "rb"), sheet_name="exam_staff")
 dfst['todo'] = dfst['todo'].map({'yes': True, 'no': False})
 dfst['first'].fillna('',inplace=True)
 dfst['last'].fillna('',inplace=True)
@@ -33,12 +36,12 @@ sp_roles = ['เจ้าหน้าที่', 'หัวหน้างาน
 dfst.loc[dfst['role'].isin(aj_roles), 'main_role'] = 'teacher'
 dfst.loc[dfst['role'].isin(sp_roles), 'main_role'] = 'support'
 
-dfdp = pd.read_excel(open(os.path.join(DATA_DIR, MASTER_FILE), "rb"), sheet_name="department", dtype={'code4': str, 0: str})
+dfdp = pd.read_excel(open(MASTER_PATH, "rb"), sheet_name="department", dtype={'code4': str, 0: str})
 
-dfoff = pd.read_excel(open(os.path.join(DATA_DIR, MASTER_FILE), "rb"), sheet_name="staff_cannot")
+dfoff = pd.read_excel(open(MASTER_PATH, "rb"), sheet_name="staff_cannot")
 stoff = (dfoff['fullname'] + ' ' + dfoff['cannot']).tolist()
 
-dfslot = pd.read_excel(open(os.path.join(DATA_DIR, MASTER_FILE), "rb"), sheet_name="staff_slot")
+dfslot = pd.read_excel(open(MASTER_PATH, "rb"), sheet_name="staff_slot")
 dfslot['self_subj'] = dfslot['self_subj'].map({'yes': True, 'no': False})
 dfslot.set_index('role', inplace=True)
 
@@ -53,7 +56,9 @@ df_final.columns = ['order', 'subj', 'sec', 'st_year', 'st_num', 'ex_time', 'tea
 df_final['code4'] = df_final['subj'].str[:5]
 '''
 
-fnames = glob.glob(os.path.join(DATA_DIR, EXAM_FILE_GLOB))
+fnames = (os.environ['EXAM_SCHEDULE_FILES'].split(os.pathsep)
+          if os.environ.get('EXAM_SCHEDULE_FILES')
+          else glob.glob(os.path.join(DATA_DIR, EXAM_FILE_GLOB)))
 
 df_ = []
 

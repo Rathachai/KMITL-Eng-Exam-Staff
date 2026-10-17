@@ -42,7 +42,9 @@ RUN_DIR = None
 def new_run_dir() -> str:
     """Create OUT_DIR/yyyy-mm-dd_HH-MM and make it the current run folder."""
     global RUN_DIR
-    RUN_DIR = os.path.join(OUT_DIR, datetime.now().strftime('%Y-%m-%d_%H-%M'))
+    # EXAM_RUN_NAME: web app สร้างโฟลเดอร์ไว้ล่วงหน้าแล้วส่งชื่อมา
+    name = os.environ.get('EXAM_RUN_NAME') or datetime.now().strftime('%Y-%m-%d_%H-%M')
+    RUN_DIR = os.path.join(OUT_DIR, name)
     os.makedirs(RUN_DIR, exist_ok=True)
     return RUN_DIR
 
