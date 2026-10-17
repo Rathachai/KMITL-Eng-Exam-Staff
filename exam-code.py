@@ -39,7 +39,14 @@ dfst.loc[dfst['role'].isin(sp_roles), 'main_role'] = 'support'
 dfdp = pd.read_excel(open(MASTER_PATH, "rb"), sheet_name="department", dtype={'code4': str, 0: str})
 
 dfoff = pd.read_excel(open(MASTER_PATH, "rb"), sheet_name="staff_cannot")
-stoff = (dfoff['fullname'] + ' ' + dfoff['cannot']).tolist()
+# ทำชื่อ/เวลาให้เป็นรูปแบบเดียวกับที่ใช้เช็ก (ตัวพิมพ์เล็ก, ช่องว่างเดียว, ไม่มีช่องว่างท้าย)
+stoff = (dfoff['fullname'].astype(str).str.replace(r'\s+', ' ', regex=True).str.strip().str.lower()
+         + ' ' + dfoff['cannot'].astype(str).str.strip()).tolist()
+
+_off_names = set(dfoff['fullname'].astype(str).str.replace(r'\s+', ' ', regex=True).str.strip().str.lower())
+_missing = sorted(_off_names - set(dfst.index))
+if _missing:
+    print('WARNING: ชื่อใน staff_cannot ที่ไม่พบใน exam_staff (วันลาจะไม่ถูกนำมาพิจารณา):', _missing)
 
 dfslot = pd.read_excel(open(MASTER_PATH, "rb"), sheet_name="staff_slot")
 dfslot['self_subj'] = dfslot['self_subj'].map({'yes': True, 'no': False})
@@ -760,4 +767,4 @@ dfX[dfX['staff']==''].groupby('dept')['order'].count()
 # SAVE STATE  (ส่งต่อให้ gen-report-*.py)
 ########################################################################
 
-save_state(dfX=dfX, dfST=dfST, dfslot=dfslot, dtlist=dtlist, extype=extype)
+save_state(dfX=dfX, dfST=dfST, dfslot=dfslot, dtlist=dtlist, extype=extype, dfoff=dfoff)
