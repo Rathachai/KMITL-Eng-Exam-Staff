@@ -27,7 +27,7 @@ cd KMITL-Eng-Exam-Staff
 | `config.py` | ค่าที่ผู้ใช้แก้ก่อนรัน (โฟลเดอร์, ปลายภาค/กลางภาค, ค่าหลักฐานจ่ายเงิน) |
 | `common.py` | ฟังก์ชัน/ค่าคงที่ที่ใช้ร่วมกัน, การเซฟ/โหลด state |
 | `exam-code.py` | จัดตารางผู้คุมสอบ แล้ว pickle ผลเป็น `exam-state.pkl` |
-| `gen-report-*.py` | สร้างรายงานอย่างละตัว (subjects, room, staff, building, check, payment) |
+| `gen-report-*.py` | สร้างรายงานอย่างละตัว (subjects, room, staff, building, pickup, check, payment) |
 | `gen-exam-room.py` | ตัวควบคุมสำหรับรันจาก command line: เรียกสคริปต์ข้างบนให้ |
 | `app.py` | Web UI (Flask) port 8089 |
 
@@ -65,7 +65,7 @@ python3 app.py        # Windows: py app.py
 เปิด <http://localhost:8089> (ไม่มี login)
 
 - อัปโหลด **Master file** และ **ตารางสอบ** แยกกัน (ตารางสอบเลือกได้หลายไฟล์) — ถ้าไม่เลือกอันไหน ใช้ไฟล์เริ่มต้นใน `exam-data/`
-- กด **เริ่ม gen** → ได้ 1 record ต่อ 1 รอบ (= โฟลเดอร์ `reports/yyyy-mm-dd_HH-MM/`) แสดงสถานะและ progress ทีละขั้น (จัดตาราง + 6 รายงาน)
+- กด **เริ่ม gen** → ได้ 1 record ต่อ 1 รอบ (= โฟลเดอร์ `reports/yyyy-mm-dd_HH-MM/`) แสดงสถานะและ progress ทีละขั้น (จัดตาราง + 7 รายงาน)
 - **ดาวน์โหลด zip** ของรายงาน (ไม่รวม `exam-state.pkl` และไฟล์ที่อัปโหลด)
 - **gen report ใหม่** ของ record เดิม ใช้ตารางคนเดิม สร้างรายงานทับในโฟลเดอร์เดิม
 - **log** ดูผลการรันของ record นั้น
@@ -80,6 +80,7 @@ python3 app.py        # Windows: py app.py
 - `by-room.xlsx` ตามห้องสอบ
 - `by-staffs.xlsx` ตามผู้คุมสอบ
 - `by-building-time.xlsx` ตามอาคาร/เวลา (รับ-ส่งข้อสอบ)
+- `for-pickup.xlsx` ใบรับ-ส่งข้อสอบ แยกชีตตามวัน-เวลา-อาคาร (ผู้รับข้อสอบ/ผู้ส่งข้อสอบ/ผู้รับไปตรวจ ให้เซ็น)
 - `for-cheking.xlsx` ตรวจสอบการจัดคน — ชีตแรก `สรุปตรวจสอบ` แสดงผ่าน/ไม่ผ่านของ 10 รายการ (ทุก row มีผู้คุม, ห้องมีอาจารย์/ผู้บริหาร, Inter, คุมวิชา/ภาคตัวเอง, คุมซ้อน, กระจายตามวัน, คุมเกิน/น้อยกว่าเกณฑ์, ชนวันลา, ผู้บริหาร) พร้อมชีตรายละเอียด `ck1`–`ck10`
 - `for-payment.xlsx` หลักฐานการจ่ายเงิน
 - `exam-state.pkl` ข้อมูลที่ส่งต่อให้รายงาน

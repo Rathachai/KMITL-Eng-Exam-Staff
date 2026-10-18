@@ -36,9 +36,9 @@ from flask import Flask, abort, jsonify, request, send_file
 from config import OUT_DIR, STATE_FILE
 
 PORT = 8089
-REPORTS = ['subjects', 'room', 'staff', 'building', 'check', 'payment']
+REPORTS = ['subjects', 'room', 'staff', 'building', 'pickup', 'check', 'payment']
 REPORT_LABEL = {'subjects': 'ตามวิชา', 'room': 'ตามห้องสอบ', 'staff': 'ตามผู้คุมสอบ',
-                'building': 'ตามอาคาร/เวลา', 'check': 'ตรวจสอบ', 'payment': 'หลักฐานจ่ายเงิน'}
+                'building': 'ตามอาคาร/เวลา', 'pickup': 'ใบรับ-ส่งข้อสอบ', 'check': 'ตรวจสอบ', 'payment': 'หลักฐานจ่ายเงิน'}
 RUN_RE = re.compile(r'^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}(-\d+)?$')
 STATUS_FILE = 'status.json'
 LOG_FILE = 'run.log'

@@ -35,7 +35,7 @@ ensure_requirements()
 
 from common import find_run_dir  # noqa: E402  (import หลังติดตั้งไลบรารีแล้ว)
 
-REPORTS = ['subjects', 'room', 'staff', 'building', 'check', 'payment']
+REPORTS = ['subjects', 'room', 'staff', 'building', 'pickup', 'check', 'payment']
 
 
 def run(script, *args):

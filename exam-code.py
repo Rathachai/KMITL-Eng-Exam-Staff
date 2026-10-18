@@ -406,6 +406,7 @@ print('', '-- END --', len(dfX[dfX['staff']=='']))
 
 # reset ผู้ริหาร
 dfST.loc[dfST['role']=='ผู้บริหาร', 'free'] = 0
+dfST.loc[dfST['role']=='หัวหน้าภาค', 'free'] = 0
 
 # assign คนสอนในภาคเดียวกัน
 for aj_round in range(3):
